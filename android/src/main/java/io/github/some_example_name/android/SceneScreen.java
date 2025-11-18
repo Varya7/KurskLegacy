@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Align;
@@ -18,7 +19,6 @@ public class SceneScreen implements Screen {
     private Texture background;
     private ShapeRenderer shapeRenderer;
     private int dialogueIndex = 0;
-
     private boolean showPanel = true;
 
     private BitmapFont nameFont;
@@ -26,6 +26,15 @@ public class SceneScreen implements Screen {
     private final Color panelBorderColor = new Color(0.7f, 0.55f, 0.25f, 0.9f); // золотистый
     private final Color namePanelColor = new Color(0.32f, 0.22f, 0.10f, 0.95f);
     private final Color nameTextColor = new Color(1f, 0.88f, 0.45f, 1f);
+
+    private TextureRegion[] characterSprites;
+    private float characterScale = 0.7f;
+
+    private TextureRegion spriteHero;
+    private TextureRegion spritePetya;
+    private TextureRegion spriteLibrarian;
+    private TextureRegion spriteTeacher;
+    private TextureRegion spriteMother;
 
 
     private static final String[] dialogues = {
@@ -145,6 +154,18 @@ public class SceneScreen implements Screen {
     };
 
 
+    private TextureRegion getSpriteForSpeaker(String name) {
+        switch (name) {
+            case "Алекс": return spriteHero;
+            case "Петька": return spritePetya;
+            case "Библиотекарь": return spriteLibrarian;
+            case "Учитель": return spriteTeacher;
+            case "Мама": return spriteMother;
+            default: return null;
+        }
+    }
+
+
     private static final int[] backgroundChangeIndices = {
         0, 5
     };
@@ -186,6 +207,13 @@ public class SceneScreen implements Screen {
                 "0123456789.,!?-—–«»\"':;() ";
 
 
+        spriteHero = new TextureRegion(new Texture("characters/hero.png"));
+        spritePetya = new TextureRegion(new Texture("characters/petya.png"));
+        spriteLibrarian = new TextureRegion(new Texture("characters/librarian.png"));
+        spriteTeacher = new TextureRegion(new Texture("characters/teacher.png"));
+        spriteMother = new TextureRegion(new Texture("characters/mother.png"));
+
+
         nameFont = generator.generateFont(nameParam);
 
         generator.dispose();
@@ -210,6 +238,27 @@ public class SceneScreen implements Screen {
         if (background != null)
             game.getBatch().draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         game.getBatch().end();
+
+// -------------------- СПРАЙТ ПЕРСОНАЖА --------------------
+        String speaker = speakers[dialogueIndex];
+        TextureRegion currentSprite = getSpriteForSpeaker(speaker);
+
+        if (currentSprite != null) {
+            float scale = 0.7f;
+
+            float w = currentSprite.getRegionWidth() * scale;
+            float h = currentSprite.getRegionHeight() * scale;
+
+            float x = 40;
+            float y = 150; // выше диалоговой панели
+
+            game.getBatch().begin();
+            game.getBatch().draw(currentSprite, x, y, w, h);
+            game.getBatch().end();
+        }
+
+
+
 
         // -------------------- КОНЕЦ ИСТОРИИ --------------------
         if (dialogueIndex >= dialogues.length) {
@@ -249,13 +298,13 @@ public class SceneScreen implements Screen {
             shapeRenderer.end();
 
             // ---------- ПАНЕЛЬ ИМЕНИ ----------
-            String speaker = (dialogueIndex < speakers.length) ? speakers[dialogueIndex] : "";
+            speaker = (dialogueIndex < speakers.length) ? speakers[dialogueIndex] : "";
 
             if (!speaker.isEmpty()) {
-                float nameHeight = 60; // уменьшили на треть
+                float nameHeight = 60;
                 float nameWidth = Gdx.graphics.getWidth() * 0.55f;
                 float nameX = 30;
-                float nameY = panelY + panelHeight + 10; // над диалоговой панелью
+                float nameY = panelY + panelHeight + 10;
 
                 shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
                 shapeRenderer.setColor(panelBorderColor);
@@ -321,12 +370,9 @@ public class SceneScreen implements Screen {
         } else if (dialogueIndex <= 41) { // Сцена 4 — библиотека
             loadBackground("scene0picture4.png");
         } else if (dialogueIndex <= dialogues.length - 1) { // Финал
-            loadBackground("scene0picture6.png");
+            loadBackground("scene0picture5.png");
         }
     }
-
-
-
 
 
     @Override public void resize(int width, int height) {}

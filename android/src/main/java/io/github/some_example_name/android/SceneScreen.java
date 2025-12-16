@@ -35,34 +35,37 @@ public class SceneScreen implements Screen {
     private TextureRegion spriteLibrarian;
     private TextureRegion spriteTeacher;
     private TextureRegion spriteMother;
+    private Texture searchIconTexture;
+    private Texture videoTexture;
+
+
 
 
     private static final String[] dialogues = {
-        "*звонок*",
+        // СЦЕНА 1. ШКОЛА
+        "Звонок.",
         "Так, ребята! На следующей неделе — праздник – День города. И я хочу, чтобы каждый из вас подготовил реферат о нашем родном крае.",
-        "(Класс дружно вздыхает.)",
+        "Эх…",
         "Не надо охать! История — это не скучно! Это как приключение во времени!",
-        "(Алекс, сидящий на задней парте, зевает, подкладывая тетрадь под голову.)",
         "Да уж… приключение — делать уроки все выходные.",
         "Александр! Надеюсь, ты услышал?",
         "Да! Я как раз… думал передать атмосферу, ну, всей этой культурной глубины — или как там это называется…",
-        "(Класс тихо хихикает.)",
+        "(Класс сдержанно смеётся.)",
         "Очень надеюсь, что твой реферат будет не списан из Википедии.",
-        "(Звонок. Все вскакивают. Алекс вздыхает, собирает рюкзак.)",
         "Ну всё, Курск, сейчас не отвертишься — я тебя изучу вдоль и поперёк!",
 
-
-        "(Алекс сидит за ноутбуком, набирает: «Интересные факты о Курской области». На экране — унылые ссылки.)",
-        "«Курск — административный центр Курской области...» — да ладно, это даже скучнее, чем урок.",
-        "(Кликает следующую ссылку.)",
-        "«Основана в 1032 году...» — То есть город старше почти всех школьных учебников. Впечатляет!",
-        "(Пауза. Он задумчиво листает дальше.)",
+        // СЦЕНА 2. ДОМ
+        "Интересные факты о Курской области",
+        "Ну, давай, удиви меня.",
+        "«Курск — административный центр Курской области...»",
+        "Да ладно, это даже скучнее, чем урок.",
+        "«Курская область для чайников»",
+        "«Курская область основана в 1032 году...»",
+        "То есть город старше почти всех школьных учебников. Впечатляет, но всё равно сухо.",
         "Может, хоть видео найду?",
-        "(включает видео, где голос за кадром монотонно рассказывает)",
         "«...расположен на юго-западе Центрального федерального округа...»",
-        "Всё, выключаю!",
-        "(Закрывает ноутбук, ложится на диван.)",
-        "Ну как тут вдохновиться? Разве кто-то может написать интересный реферат, если всё такое… скучное?",
+        "Всё, я так больше не могу!",
+        "Ну как тут вдохновиться? Разве кто-то может написать хороший реферат, если всё такое… скучное?",
         "Алекс, а может, попробуешь сделать реферат не только по сайтам, а с настоящими книгами?",
         "Настоящими книгами… И что, там мне вообще что-то интересное найдётся?",
         "Кто знает, может, найдётся что-то, чего в интернете нет!",
@@ -74,53 +77,49 @@ public class SceneScreen implements Screen {
         "Отлично! Вот и начало настоящего приключения.",
         "Ну… посмотрим, что там за “великие открытия”. Только не обещаю, что буду впечатлён.",
 
-
-        "Библиотека… Ну да, сейчас я найду там суперсекретную энциклопедию, которая всё изменит.",
-        "Может, ещё и вечный двигатель случайно изобрету.",
-        "(Мимо пробегает его одноклассник Петька.)",
+        // СЦЕНА 3. УЛИЦА
+        "Библиотека… Ну да, сейчас я найду там суперсекретную энциклопедию, которая всё изменит. Может, ещё и вечный двигатель случайно изобрету.",
         "О, Саша! Куда идёшь? Футбол же скоро!",
         "Не могу, у меня миссия — написать реферат.",
         "Удачи! Только не заблудись среди этих гор бумаги.",
         "Да уж, постараюсь…",
-        "(Он толкает дверь, колокольчик звенит.)",
 
-
+        // СЦЕНА 4. БИБЛИОТЕКА
         "Здравствуйте, юноша. Что ищем?",
         "Что-нибудь… про Курск. Но чтобы интересно. Не просто «дата, цифра, площадь».",
         "Интересно… Про Курск… Пойдёмте.",
-        "(Она ведёт его между стеллажами, останавливается у старого шкафа.)",
         "Здесь редкий фонд. Но аккуратно, пожалуйста.",
-        "(Уходит. Алекс смотрит на полки. Между книг виднеется странный, потрёпанный том с золотыми буквами, которые слегка мерцают: «Хроники Курского края».)",
         "Вот это да... Не видел такой даже в интернете.",
         "Эй… что это?..",
         "Все истории оживают, стоит только захотеть их узнать по-настоящему.",
-        "(Белая вспышка. Экран темнеет.)"
+        "Что… происходит?.."
     };
 
 
     private static final String[] speakers = {
+        // СЦЕНА 1. ШКОЛА
         "",
         "Учитель",
-        "",
-        "Учитель",
-        "",
-        "Алекс",
+        "Класс",
         "Учитель",
         "Алекс",
-        "",
         "Учитель",
-        "",
+        "Алекс",
+        "Класс",
+        "Учитель",
         "Алекс",
 
-        "",
+        // СЦЕНА 2. ДОМ
+        "Поисковая строка",
         "Алекс",
-        "",
+        "Ответ",
         "Алекс",
-        "",
+        "Поисковая строка",
+        "Ответ",
+        "Алекс",
         "Алекс",
         "Голос из видео",
         "Алекс",
-        "",
         "Алекс",
         "Мама",
         "Алекс",
@@ -130,28 +129,27 @@ public class SceneScreen implements Screen {
         "Алекс",
         "Мама",
         "Алекс",
+        "Мама",
         "Алекс",
 
+        // СЦЕНА 3. УЛИЦА
         "Алекс",
-        "Алекс",
-        "",
         "Петька",
         "Алекс",
         "Петька",
         "Алекс",
-        "",
 
+        // СЦЕНА 4. БИБЛИОТЕКА
         "Библиотекарь",
         "Алекс",
         "Библиотекарь",
-        "",
         "Библиотекарь",
-        "",
         "Алекс",
         "Алекс",
         "Таинственный голос",
-        ""
+        "Алекс"
     };
+
 
 
     private TextureRegion getSpriteForSpeaker(String name) {
@@ -164,6 +162,15 @@ public class SceneScreen implements Screen {
             default: return null;
         }
     }
+
+    private TextureRegion getSecondSpriteForSpeaker(String current, String previous) {
+        if (previous != null && !previous.isEmpty() && !previous.equals(current)) {
+            return getSpriteForSpeaker(previous);
+        }
+        return null;
+    }
+
+
 
 
     private static final int[] backgroundChangeIndices = {
@@ -213,8 +220,12 @@ public class SceneScreen implements Screen {
         spriteTeacher = new TextureRegion(new Texture("characters/teacher.png"));
         spriteMother = new TextureRegion(new Texture("characters/mother.png"));
 
+        searchIconTexture = new Texture(Gdx.files.internal("search_icon.png"));
+        videoTexture = new Texture(Gdx.files.internal("video.jpg"));
 
         nameFont = generator.generateFont(nameParam);
+
+
 
         generator.dispose();
 
@@ -227,6 +238,14 @@ public class SceneScreen implements Screen {
 
     }
 
+    private float typeTimer = 0f;
+    private float typeSpeed = 0.03f;
+    private int visibleChars = -1;
+    private String lastSearchQuery = "";
+    private boolean isVideoMoment() {
+        return dialogueIndex == 17 || dialogueIndex == 18;
+    }
+
     @Override
     public void render(float delta) {
 
@@ -235,30 +254,11 @@ public class SceneScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.getBatch().begin();
-        if (background != null)
-            game.getBatch().draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        game.getBatch().end();
-
-// -------------------- СПРАЙТ ПЕРСОНАЖА --------------------
-        String speaker = speakers[dialogueIndex];
-        TextureRegion currentSprite = getSpriteForSpeaker(speaker);
-
-        if (currentSprite != null) {
-            float scale = 0.7f;
-
-            float w = currentSprite.getRegionWidth() * scale;
-            float h = currentSprite.getRegionHeight() * scale;
-
-            float x = 40;
-            float y = 150; // выше диалоговой панели
-
-            game.getBatch().begin();
-            game.getBatch().draw(currentSprite, x, y, w, h);
-            game.getBatch().end();
+        if (background != null) {
+            game.getBatch().draw(background, 0, 0,
+                Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         }
-
-
-
+        game.getBatch().end();
 
         // -------------------- КОНЕЦ ИСТОРИИ --------------------
         if (dialogueIndex >= dialogues.length) {
@@ -283,22 +283,149 @@ public class SceneScreen implements Screen {
             return;
         }
 
-        // -------------------- ФЛАГ ВИДИМОСТИ ПАНЕЛИ --------------------
-        if (showPanel) {
+        // -------------------- ПОДГОТОВКА ДАННЫХ --------------------
+        String speaker = (dialogueIndex < speakers.length) ? speakers[dialogueIndex] : "";
+        String fullText = dialogues[dialogueIndex];
+
+        boolean isSearch = "Поисковая строка".equals(speaker);
+        boolean isAnswer = "Ответ".equals(speaker);
+        boolean isVideoVoice = "Голос из видео".equals(speaker);
+        boolean isSearchMode = isSearch || isAnswer || isVideoVoice;
+        boolean isAnswerBlock = isAnswer || isVideoVoice;
+
+
+        if (isSearch) {
+            lastSearchQuery = fullText;
+        }
+
+        boolean hideCharactersOnLast = (dialogueIndex>40);
+
+        boolean hideCharacters = !showPanel || hideCharactersOnLast || isSearchMode;
+
+        TextureRegion leftSprite = null;
+        TextureRegion rightSprite = null;
+
+        if (!hideCharacters) {
+            String prevSpeaker = dialogueIndex > 0 ? speakers[dialogueIndex - 1] : "";
+            TextureRegion currentSprite = getSpriteForSpeaker(speaker);
+            TextureRegion prevSprite = getSpriteForSpeaker(prevSpeaker);
+
+            if ("Алекс".equals(speaker) || "Алекс".equals(prevSpeaker)) {
+                leftSprite = getSpriteForSpeaker("Алекс");
+
+               if (!"Алекс".equals(speaker) && currentSprite != null) {
+                    rightSprite = currentSprite;
+                } else if (!"Алекс".equals(prevSpeaker) && prevSprite != null) {
+                    rightSprite = prevSprite;
+                }
+            } else {
+                leftSprite = currentSprite;
+                if (prevSprite != null && !prevSpeaker.isEmpty() && !prevSpeaker.equals(speaker)) {
+                    rightSprite = prevSprite;
+                }
+            }
+        }
+
+
+        if (leftSprite != null || rightSprite != null) {
+            game.getBatch().begin();
+
+            float scale = 0.7f;
+            float y = 150;
+
+            if (leftSprite != null) {
+                float w = leftSprite.getRegionWidth() * scale;
+                float h = leftSprite.getRegionHeight() * scale;
+                float x = 40;
+                game.getBatch().draw(leftSprite, x, y, w, h);
+            }
+
+            if (rightSprite != null) {
+                float w = rightSprite.getRegionWidth() * scale;
+                float h = rightSprite.getRegionHeight() * scale;
+                float x = Gdx.graphics.getWidth() - w - 40;
+                game.getBatch().draw(rightSprite, x, y, w, h);
+            }
+
+            game.getBatch().end();
+        }
+
+
+
+        // -------------------- ЭФФЕКТ ПЕЧАТИ --------------------
+        String searchText = "";
+        String answerText = "";
+
+        if (isSearchMode) {
+            if (visibleChars == -1) {
+                visibleChars = 0;
+                typeTimer = 0f;
+            }
+            typeTimer += delta;
+            int target = (int) (typeTimer / typeSpeed);
+            if (target > visibleChars) {
+                visibleChars = Math.min(fullText.length(), target);
+            }
+
+            if (isSearch) {
+                searchText = fullText.substring(0, visibleChars);
+                answerText = "";
+            } else {
+                searchText = lastSearchQuery;
+                answerText = fullText.substring(0, visibleChars);
+            }
+        } else {
+            visibleChars = -1;
+            typeTimer = 0f;
+        }
+
+        // -------------------- ФИГУРЫ (ПАНЕЛИ / БРАУЗЕР) --------------------
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        if (isSearchMode) {
+            float screenWidth = Gdx.graphics.getWidth();
+            float screenHeight = Gdx.graphics.getHeight();
+
+            float barY = screenHeight - browserBarHeight;
+            float fieldWidth = screenWidth * 0.8f;
+            float fieldX = (screenWidth - fieldWidth) / 2f;
+            float fieldY = barY + (browserBarHeight - searchFieldHeight) / 2f;
+
+            shapeRenderer.setColor(browserBarColor);
+            shapeRenderer.rect(0, barY, screenWidth, browserBarHeight);
+
+            shapeRenderer.setColor(browserBorderColor);
+            shapeRenderer.rect(0, barY, screenWidth, 3);
+
+            shapeRenderer.setColor(searchFieldColor);
+            shapeRenderer.rect(fieldX, fieldY, fieldWidth, searchFieldHeight);
+            shapeRenderer.setColor(searchFieldBorderColor);
+            shapeRenderer.rect(fieldX, fieldY + searchFieldHeight - 2, fieldWidth, 2);
+
+            if (isAnswerBlock) {
+                float answerWidth = fieldWidth;
+                float answerHeight = isVideoMoment() ? (screenHeight * 0.55f) : 180f;
+                float answerX = fieldX;
+                float answerY = fieldY - answerHeight - 20f;
+
+                shapeRenderer.setColor(1f, 1f, 1f, 1f);
+                shapeRenderer.rect(answerX, answerY, answerWidth, answerHeight);
+                shapeRenderer.setColor(browserBorderColor);
+                shapeRenderer.rect(answerX, answerY, answerWidth, 2);
+            }
+
+
+
+
+        } else if (showPanel) {
 
             float panelHeight = 180;
             float panelY = 20;
 
-            // ---------- ПАНЕЛЬ ДИАЛОГА ----------
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(panelBorderColor);
             shapeRenderer.rect(20, panelY - 10, Gdx.graphics.getWidth() - 40, panelHeight + 20);
             shapeRenderer.setColor(panelColor);
             shapeRenderer.rect(30, panelY, Gdx.graphics.getWidth() - 60, panelHeight);
-            shapeRenderer.end();
-
-            // ---------- ПАНЕЛЬ ИМЕНИ ----------
-            speaker = (dialogueIndex < speakers.length) ? speakers[dialogueIndex] : "";
 
             if (!speaker.isEmpty()) {
                 float nameHeight = 60;
@@ -306,30 +433,147 @@ public class SceneScreen implements Screen {
                 float nameX = 30;
                 float nameY = panelY + panelHeight + 10;
 
-                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
                 shapeRenderer.setColor(panelBorderColor);
                 shapeRenderer.rect(nameX - 5, nameY - 5, nameWidth + 10, nameHeight + 10);
                 shapeRenderer.setColor(namePanelColor);
                 shapeRenderer.rect(nameX, nameY, nameWidth, nameHeight);
-                shapeRenderer.end();
+            }
+        }
 
-                game.getBatch().begin();
-                layout.setText(nameFont, speaker, nameTextColor, nameWidth - 20, Align.left, true);
-                nameFont.draw(game.getBatch(), layout, nameX + 20, nameY + nameHeight - 5);
-                game.getBatch().end();
+        shapeRenderer.end();
+
+        // -------------------- ТЕКСТ (БРАУЗЕР / ПАНЕЛИ) --------------------
+        game.getBatch().begin();
+
+        if (isSearchMode) {
+            float screenWidth = Gdx.graphics.getWidth();
+            float screenHeight = Gdx.graphics.getHeight();
+
+            float barY = screenHeight - browserBarHeight;
+            float fieldWidth = screenWidth * 0.8f;
+            float fieldX = (screenWidth - fieldWidth) / 2f;
+            float fieldY = barY + (browserBarHeight - searchFieldHeight) / 2f;
+
+            float iconSize = 50f;
+            float iconX = fieldX + 16f;
+            float iconY = fieldY + (searchFieldHeight - iconSize) / 2f;
+
+            if (searchIconTexture != null) {
+                game.getBatch().draw(searchIconTexture, iconX, iconY, iconSize, iconSize);
             }
 
-            // ---------- ТЕКСТ ДИАЛОГА ----------
-            String text = dialogues[dialogueIndex];
-            game.getBatch().begin();
-            layout.setText(font, text,
+            float textOffsetX = (iconX - fieldX) + iconSize + 8f;
+
+            layout.setText(font, searchText,
+                browserTextColor,
+                fieldWidth - textOffsetX - searchFieldHorizontalPadding,
+                Align.left,
+                true);
+            font.draw(game.getBatch(), layout,
+                fieldX + textOffsetX,
+                fieldY + searchFieldHeight - searchFieldVerticalPadding);
+
+            if (isAnswerBlock && isVideoMoment()) {
+                float answerWidth = fieldWidth;
+                float answerHeight = screenHeight * 0.55f;  // как в ShapeRenderer
+                float answerX = fieldX;
+                float answerY = fieldY - answerHeight - 20f;
+
+                if (videoTexture != null) {
+                    float paddingSides = 24f;
+                    float paddingTop = 24f;
+                    float paddingBottom = 24f;
+                    float paddingBetween = 16f;
+
+                    float texW = videoTexture.getWidth();
+                    float texH = videoTexture.getHeight();
+
+                    float maxVideoWidth = answerWidth - 2 * paddingSides;
+                    float maxVideoHeight = answerHeight - paddingTop - paddingBottom - 80f; // 80px под текст
+
+                    float scale = Math.min(maxVideoWidth / texW, maxVideoHeight / texH);
+                    float drawW = texW * scale;
+                    float drawH = texH * scale;
+
+                    float drawX = answerX + (answerWidth - drawW) / 2f;
+                    float drawY = answerY + answerHeight - paddingTop - drawH;
+
+                    game.getBatch().draw(videoTexture, drawX, drawY, drawW, drawH);
+
+                    float textTopY = drawY - paddingBetween;
+                    float textAreaWidth = answerWidth - 2 * paddingSides;
+
+                    layout.setText(font, answerText,
+                        browserTextColor,
+                        textAreaWidth,
+                        Align.left,
+                        true);
+                    font.draw(game.getBatch(), layout,
+                        answerX + paddingSides,
+                        textTopY);
+                } else {
+                    answerWidth = fieldWidth;
+                    answerHeight = screenHeight * 0.55f;
+                    answerX = fieldX;
+                    answerY = fieldY - answerHeight - 20f;
+
+                    layout.setText(font, answerText,
+                        browserTextColor,
+                        answerWidth - 40f,
+                        Align.left,
+                        true);
+                    font.draw(game.getBatch(), layout,
+                        answerX + 20f,
+                        answerY + answerHeight - 20f);
+                }
+            }
+
+
+            else if (isAnswerBlock) {
+                float answerWidth = fieldWidth;
+                float answerHeight = 180f;
+                float answerX = fieldX;
+                float answerY = fieldY - answerHeight - 20f;
+
+                layout.setText(font, answerText,
+                    browserTextColor,
+                    answerWidth - 40f,
+                    Align.left,
+                    true);
+                font.draw(game.getBatch(), layout,
+                    answerX + 20f,
+                    answerY + answerHeight - 20f);
+            }
+
+
+
+        } else if (showPanel) {
+
+            float panelHeight = 180;
+            float panelY = 20;
+
+            if (!speaker.isEmpty()) {
+                float nameHeight = 60;
+                float nameWidth = Gdx.graphics.getWidth() * 0.55f;
+                float nameX = 30;
+                float nameY = panelY + panelHeight + 10;
+
+                layout.setText(nameFont, speaker, nameTextColor,
+                    nameWidth - 20, Align.left, true);
+                nameFont.draw(game.getBatch(), layout,
+                    nameX + 20, nameY + nameHeight - 5);
+            }
+
+            layout.setText(font, fullText,
                 new Color(1f, 0.96f, 0.85f, 1f),
                 Gdx.graphics.getWidth() - 100,
                 Align.left,
                 true);
-            font.draw(game.getBatch(), layout, 50, panelY + panelHeight - 40);
-            game.getBatch().end();
+            font.draw(game.getBatch(), layout,
+                50, panelY + panelHeight - 40);
         }
+
+        game.getBatch().end();
 
         // -------------------- УПРАВЛЕНИЕ --------------------
         if (Gdx.input.justTouched()) {
@@ -337,17 +581,23 @@ public class SceneScreen implements Screen {
             float y = Gdx.input.getY();
 
             if (x < Gdx.graphics.getWidth() / 4f && y < Gdx.graphics.getHeight() / 4f) {
-                showPanel = !showPanel;
-            }
-            else if (x < Gdx.graphics.getWidth() / 2f) {
+                if (!isSearchMode) {
+                    showPanel = !showPanel;
+                }
+            } else if (x < Gdx.graphics.getWidth() / 2f) {
                 if (dialogueIndex > 0) {
                     dialogueIndex--;
+                    visibleChars = -1;
+                    typeTimer = 0f;
                     updateBackground();
                 }
-            }
-            else {
-                dialogueIndex++;
-                updateBackground();
+            } else {
+                if (dialogueIndex < dialogues.length) {
+                    dialogueIndex++;
+                    visibleChars = -1;
+                    typeTimer = 0f;
+                    updateBackground();
+                }
             }
         }
     }
@@ -359,20 +609,31 @@ public class SceneScreen implements Screen {
         background = new Texture(Gdx.files.internal(fileName));
     }
 
-    private void updateBackground() {
 
-        if (dialogueIndex <= 11) { // Сцена 1 — школа
+    private void updateBackground() {
+        if (dialogueIndex <= 9) {              // школа
             loadBackground("scene0picture1.png");
-        } else if (dialogueIndex <= 28) { // Сцена 2 — дома
+        } else if (dialogueIndex <= 29) {      // дом
             loadBackground("scene0picture2.png");
-        } else if (dialogueIndex <= 33) { // Сцена 3 — улица
+        } else if (dialogueIndex <= 35) {      // улица
             loadBackground("scene0picture3.png");
-        } else if (dialogueIndex <= 41) { // Сцена 4 — библиотека
+        } else if (dialogueIndex <= 40) {      // библиотека
             loadBackground("scene0picture4.png");
-        } else if (dialogueIndex <= dialogues.length - 1) { // Финал
+        } else if (dialogueIndex <= 41) {      // картинка
             loadBackground("scene0picture5.png");
         }
     }
+
+    private boolean isRealCharacter(String name) {
+        return "Алекс".equals(name)
+            || "Петька".equals(name)
+            || "Библиотекарь".equals(name)
+            || "Учитель".equals(name)
+            || "Мама".equals(name);
+    }
+
+
+
 
 
     @Override public void resize(int width, int height) {}
@@ -385,5 +646,23 @@ public class SceneScreen implements Screen {
         if (background != null) background.dispose();
         if (font != null) font.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
+        if (videoTexture != null) videoTexture.dispose();
     }
+
+
+
+    private final Color browserBarColor = new Color(0.95f, 0.95f, 0.97f, 1f);
+    private final Color browserBorderColor = new Color(0.75f, 0.75f, 0.8f, 1f);
+    private final Color searchFieldColor = new Color(1f, 1f, 1f, 1f);
+    private final Color searchFieldBorderColor = new Color(0.8f, 0.8f, 0.85f, 1f);
+    private final Color browserTextColor = new Color(0.1f, 0.1f, 0.1f, 1f);
+
+    private float browserBarHeight = 90f;
+    private float searchFieldHeight = 80f;
+    private float searchFieldHorizontalPadding = 24f;
+    private float searchFieldVerticalPadding = 16f;
+
+
+
+
 }

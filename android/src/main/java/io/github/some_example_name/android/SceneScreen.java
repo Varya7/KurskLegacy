@@ -260,28 +260,6 @@ public class SceneScreen implements Screen {
         }
         game.getBatch().end();
 
-        // -------------------- КОНЕЦ ИСТОРИИ --------------------
-        if (dialogueIndex >= dialogues.length) {
-            float panelY = 220;
-
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(panelBorderColor);
-            shapeRenderer.rect(40, panelY - 10, Gdx.graphics.getWidth() - 80, 200);
-            shapeRenderer.setColor(panelColor);
-            shapeRenderer.rect(50, panelY, Gdx.graphics.getWidth() - 100, 180);
-            shapeRenderer.end();
-
-            game.getBatch().begin();
-            layout.setText(font, "— Конец истории —",
-                Color.WHITE,
-                Gdx.graphics.getWidth(),
-                Align.center,
-                true);
-            font.draw(game.getBatch(), layout, 0, panelY + 110);
-            game.getBatch().end();
-
-            return;
-        }
 
         // -------------------- ПОДГОТОВКА ДАННЫХ --------------------
         String speaker = (dialogueIndex < speakers.length) ? speakers[dialogueIndex] : "";
@@ -592,12 +570,16 @@ public class SceneScreen implements Screen {
                     updateBackground();
                 }
             } else {
-                if (dialogueIndex < dialogues.length) {
-                    dialogueIndex++;
-                    visibleChars = -1;
-                    typeTimer = 0f;
-                    updateBackground();
-                }
+            if (dialogueIndex < dialogues.length - 1) {
+
+                dialogueIndex++;
+                visibleChars = -1;
+                typeTimer = 0f;
+                updateBackground();
+            } else {
+                game.setIntroCompleted(true);
+                game.setScreen(new LevelMenuScreen(game));
+            }
             }
         }
     }

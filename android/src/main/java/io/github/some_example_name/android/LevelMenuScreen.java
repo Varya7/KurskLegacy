@@ -135,10 +135,10 @@ public class LevelMenuScreen implements Screen {
             game.getBatch().draw(game.whitePixelTexture, x, y, squareSize, squareSize);
 
             game.getBatch().setColor(border);
-            game.getBatch().draw(game.whitePixelTexture, x, y, squareSize, bw); // низ
-            game.getBatch().draw(game.whitePixelTexture, x, y + squareSize - bw, squareSize, bw); // верх
-            game.getBatch().draw(game.whitePixelTexture, x, y, bw, squareSize); // левый
-            game.getBatch().draw(game.whitePixelTexture, x + squareSize - bw, y, bw, squareSize); // правый
+            game.getBatch().draw(game.whitePixelTexture, x, y, squareSize, bw);
+            game.getBatch().draw(game.whitePixelTexture, x, y + squareSize - bw, squareSize, bw);
+            game.getBatch().draw(game.whitePixelTexture, x, y, bw, squareSize);
+            game.getBatch().draw(game.whitePixelTexture, x + squareSize - bw, y, bw, squareSize);
 
             layout.setText(itemFont, items[i], textColor, squareSize, Align.center, true);
             itemFont.setColor(textColor);
@@ -193,7 +193,7 @@ public class LevelMenuScreen implements Screen {
                 game.setScreen(new Level1Screen(game));
                 break;
             case 2:
-                // TODO: Уровень 2
+                game.setScreen(new Level2Screen(game));
                 break;
             case 3:
                 // TODO: Уровень 3

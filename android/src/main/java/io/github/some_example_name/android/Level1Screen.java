@@ -198,17 +198,34 @@ public class Level1Screen implements Screen {
         if (state == State.FINISHED) {
             String result = win ? "Вы выиграли!" : "Вы проиграли";
 
-            game.getBatch().setColor(0f, 0f, 0f, 0.7f);
+            float panelW = w - 80;
+            float panelH = 180;
+            float panelX = 40;
+            float panelY = h / 2f - panelH / 2f;
+
+            game.getBatch().setColor(1f, 0.98f, 0.9f, 0.95f);
             game.getBatch().draw(game.whitePixelTexture,
-                40, h / 2f - 100, w - 80, 180);
+                panelX, panelY, panelW, panelH);
+
+            game.getBatch().setColor(0.4f, 0.25f, 0.1f, 1f);
+            game.getBatch().draw(game.whitePixelTexture,
+                panelX, panelY, panelW, 4);
+            game.getBatch().draw(game.whitePixelTexture,
+                panelX, panelY + panelH - 4, panelW, 4);
+            game.getBatch().draw(game.whitePixelTexture,
+                panelX, panelY, 4, panelH);
+            game.getBatch().draw(game.whitePixelTexture,
+                panelX + panelW - 4, panelY, 4, panelH);
+
             game.getBatch().setColor(Color.WHITE);
 
             layout.setText(levelFont, result,
-                new Color(0.3f, 0.18f, 0.08f, 1f),
-                w - 80, Align.center, true);
+                new Color(0.2f, 0.12f, 0.05f, 1f),
+                panelW - 40, Align.center, true);
             levelFont.draw(game.getBatch(), layout,
-                40, h / 2f + 20);
+                panelX + 20, panelY + panelH / 2f + 20);
         }
+
 
         game.getBatch().end();
 

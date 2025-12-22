@@ -196,7 +196,7 @@ public class LevelMenuScreen implements Screen {
                 game.setScreen(new Level2Screen(game));
                 break;
             case 3:
-                // TODO: Уровень 3
+                game.setScreen(new Level3Screen(game));
                 break;
         }
     }

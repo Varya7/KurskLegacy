@@ -10,13 +10,10 @@ public class KurskJourneyGame extends Game {
 
     @Override
     public void create() {
-        //batch = new SpriteBatch();
-        //setScreen(new SceneScreen(this, 0)); // Стартуем со сцены 0
+
     }
 
     @Override
     public void dispose() {
-        //batch.dispose();
-        //getScreen().dispose();
     }
 }

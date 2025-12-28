@@ -15,6 +15,8 @@ import com.badlogic.gdx.math.Interpolation;
 public class Level3Screen implements Screen {
 
     private final MainGame game;
+    private Screen previousScreen;
+    private boolean fromMenu = false;
 
     private static final int GRID_WIDTH = 9;
     private static final int GRID_HEIGHT = 6;
@@ -59,9 +61,27 @@ public class Level3Screen implements Screen {
 
     public Level3Screen(MainGame game) {
         this.game = game;
+        this.fromMenu = true;
         initTextures();
         initFont();
         resetGame();
+    }
+
+    public Level3Screen(MainGame game, Screen previousScreen) {
+        this.game = game;
+        this.previousScreen = previousScreen;
+        this.fromMenu = false;
+        initTextures();
+        initFont();
+        resetGame();
+    }
+
+    public void setFromMenu(boolean fromMenu) {
+        this.fromMenu = fromMenu;
+    }
+
+    public void setPreviousScreen(Screen previousScreen) {
+        this.previousScreen = previousScreen;
     }
 
     private void initTextures() {
@@ -390,7 +410,7 @@ public class Level3Screen implements Screen {
                 layout.setText(font, "3+ в ряд = 150 монет");
                 font.draw(game.getBatch(), layout, (w - layout.width) * 0.5f, h * 0.60f);
 
-                layout.setText(font, "Цель: 8500 за 50 сек");
+                layout.setText(font, "Цель: 8500 за 30 сек");
                 font.draw(game.getBatch(), layout, (w - layout.width) * 0.5f, h * 0.50f);
 
                 layout.setText(font, "Свайпни чтобы играть!");
@@ -505,9 +525,21 @@ public class Level3Screen implements Screen {
         }
 
         game.getBatch().end();
+            if (state == State.FINISHED && Gdx.input.justTouched()) {
+            game.setLevelCompleted(2, gameWon);
 
-        if (state == State.FINISHED && Gdx.input.justTouched()) {
-            game.setScreen(new LevelMenuScreen(game));
+            if (fromMenu || previousScreen == null) {
+                game.setScreen(new LevelMenuScreen(game));
+            } else {
+                if (previousScreen instanceof Scene3Screen) {
+                    Scene3Screen scene = (Scene3Screen) previousScreen;
+                    scene.setDialogueIndex(24);
+                    scene.setShowPanel(true);
+                    game.setScreen(scene);
+                } else {
+                    game.setScreen(previousScreen);
+                }
+            }
         }
     }
 
@@ -527,3 +559,4 @@ public class Level3Screen implements Screen {
         if (font != null) font.dispose();
     }
 }
+

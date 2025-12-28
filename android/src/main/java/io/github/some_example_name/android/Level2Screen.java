@@ -5,15 +5,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 
 public class Level2Screen implements Screen {
 
     private final MainGame game;
+    private Screen previousScreen;
+    private final boolean fromMenu;
 
     private static final int GRID_WIDTH = 10;
     private static final int GRID_HEIGHT = 12;
@@ -23,7 +27,6 @@ public class Level2Screen implements Screen {
     private int offsetY;
 
     private int[][] grid = new int[GRID_WIDTH][GRID_HEIGHT];
-
     private Texture blockTex;
 
     private enum PieceType { I, O, T, S, Z, J, L }
@@ -52,7 +55,9 @@ public class Level2Screen implements Screen {
     private boolean gameOver = false;
 
     private BitmapFont font;
+    private BitmapFont dialogueFont;
     private GlyphLayout layout = new GlyphLayout();
+    private ShapeRenderer shapeRenderer;
 
     private enum State { INSTRUCTIONS, RUNNING, FINISHED }
     private State state = State.INSTRUCTIONS;
@@ -61,34 +66,59 @@ public class Level2Screen implements Screen {
     private float lockTimer = 0f;
     private boolean onGround = false;
 
+    private final Color panelColor = new Color(0.25f, 0.15f, 0.07f, 0.82f);
+    private final Color panelBorderColor = new Color(0.7f, 0.55f, 0.25f, 0.9f);
 
     public Level2Screen(MainGame game) {
+        this(game, null, true);
+    }
+
+    public Level2Screen(MainGame game, Screen previousScreen) {
+        this(game, previousScreen, false);
+    }
+
+    private Level2Screen(MainGame game, Screen previousScreen, boolean fromMenu) {
         this.game = game;
+        this.previousScreen = previousScreen;
+        this.fromMenu = fromMenu;
 
-        blockTex = new Texture(Gdx.files.internal("block.png"));
-
+        initAssets();
         offsetX = (Gdx.graphics.getWidth() - GRID_WIDTH * CELL_SIZE) / 2;
         offsetY = (Gdx.graphics.getHeight() - GRID_HEIGHT * CELL_SIZE) / 2;
+    }
 
-        FreeTypeFontGenerator gen =
-            new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Regular.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter p =
-            new FreeTypeFontGenerator.FreeTypeFontParameter();
+    private void initAssets() {
+        blockTex = new Texture(Gdx.files.internal("block.png"));
+
+        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Regular.ttf"));
+
+        FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        p.size = 48;
+        p.color = new Color(1f, 0.96f, 0.85f, 1f);
+        p.borderWidth = 2f;
+        p.borderColor = new Color(0.1f, 0.05f, 0.02f, 0.9f);
+        p.shadowOffsetX = 2;
+        p.shadowOffsetY = 2;
+        p.characters = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,!?-—–«»\"':;() ";
+        dialogueFont = gen.generateFont(p);
+
         p.size = 42;
         p.color = new Color(0.3f, 0.18f, 0.08f, 1f);
         p.borderWidth = 0f;
         p.shadowOffsetX = 0;
         p.shadowOffsetY = 0;
-        p.characters =
-            "абвгдеёжзийклмнопрстуфхцчшщъыьэюя" +
-                "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ" +
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-                "0123456789.,!?-—–«»\"':;() ";
         font = gen.generateFont(p);
         gen.dispose();
 
-        next = randomPiece();
-        spawnNewPieceFromNext();
+        if (game.whitePixelTexture == null) {
+            Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+            pixmap.setColor(Color.WHITE);
+            pixmap.fill();
+            game.whitePixelTexture = new Texture(pixmap);
+            pixmap.dispose();
+        }
+
+        shapeRenderer = new ShapeRenderer();
     }
 
     private Piece randomPiece() {
@@ -125,103 +155,41 @@ public class Level2Screen implements Screen {
     private int[][] cellsFor(PieceType type, int cx, int cy, int rot) {
         if (type == PieceType.I) {
             if (rot % 2 == 0) {
-                return new int[][]{
-                    {cx - 2, cy}, {cx - 1, cy}, {cx, cy}, {cx + 1, cy}
-                };
+                return new int[][]{{cx - 2, cy}, {cx - 1, cy}, {cx, cy}, {cx + 1, cy}};
             } else {
-                return new int[][]{
-                    {cx, cy - 2}, {cx, cy - 1}, {cx, cy}, {cx, cy + 1}
-                };
+                return new int[][]{{cx, cy - 2}, {cx, cy - 1}, {cx, cy}, {cx, cy + 1}};
             }
         } else if (type == PieceType.O) {
-            return new int[][]{
-                {cx,     cy},
-                {cx + 1, cy},
-                {cx,     cy + 1},
-                {cx + 1, cy + 1}
-            };
-        } else if (type == PieceType.T) {
-            if (rot == 0) {
-                return new int[][]{
-                    {cx - 1, cy}, {cx, cy}, {cx + 1, cy}, {cx, cy + 1}
-                };
-            } else if (rot == 1) {
-                return new int[][]{
-                    {cx, cy - 1}, {cx, cy}, {cx, cy + 1}, {cx - 1, cy}
-                };
-            } else if (rot == 2) {
-                return new int[][]{
-                    {cx - 1, cy}, {cx, cy}, {cx + 1, cy}, {cx, cy - 1}
-                };
-            } else {
-                return new int[][]{
-                    {cx, cy - 1}, {cx, cy}, {cx, cy + 1}, {cx + 1, cy}
-                };
-            }
+            return new int[][]{{cx, cy}, {cx + 1, cy}, {cx, cy + 1}, {cx + 1, cy + 1}};
+        }
+        else if (type == PieceType.T) {
+            if (rot == 0) return new int[][]{{cx - 1, cy}, {cx, cy}, {cx + 1, cy}, {cx, cy + 1}};
+            else if (rot == 1) return new int[][]{{cx, cy - 1}, {cx, cy}, {cx, cy + 1}, {cx - 1, cy}};
+            else if (rot == 2) return new int[][]{{cx - 1, cy}, {cx, cy}, {cx + 1, cy}, {cx, cy - 1}};
+            else return new int[][]{{cx, cy - 1}, {cx, cy}, {cx, cy + 1}, {cx + 1, cy}};
         } else if (type == PieceType.S) {
-            if (rot % 2 == 0) {
-                return new int[][]{
-                    {cx - 1, cy}, {cx, cy}, {cx, cy + 1}, {cx + 1, cy + 1}
-                };
-            } else {
-                return new int[][]{
-                    {cx, cy - 1}, {cx, cy}, {cx - 1, cy}, {cx - 1, cy + 1}
-                };
-            }
+            if (rot % 2 == 0) return new int[][]{{cx - 1, cy}, {cx, cy}, {cx, cy + 1}, {cx + 1, cy + 1}};
+            else return new int[][]{{cx, cy - 1}, {cx, cy}, {cx - 1, cy}, {cx - 1, cy + 1}};
         } else if (type == PieceType.Z) {
-            if (rot % 2 == 0) {
-                return new int[][]{
-                    {cx, cy}, {cx + 1, cy}, {cx - 1, cy + 1}, {cx, cy + 1}
-                };
-            } else {
-                return new int[][]{
-                    {cx - 1, cy - 1}, {cx - 1, cy}, {cx, cy}, {cx, cy + 1}
-                };
-            }
+            if (rot % 2 == 0) return new int[][]{{cx, cy}, {cx + 1, cy}, {cx - 1, cy + 1}, {cx, cy + 1}};
+            else return new int[][]{{cx - 1, cy - 1}, {cx - 1, cy}, {cx, cy}, {cx, cy + 1}};
         } else if (type == PieceType.J) {
-            if (rot == 0) {
-                return new int[][]{
-                    {cx - 1, cy}, {cx, cy}, {cx + 1, cy}, {cx + 1, cy + 1}
-                };
-            } else if (rot == 1) {
-                return new int[][]{
-                    {cx, cy - 1}, {cx, cy}, {cx, cy + 1}, {cx - 1, cy + 1}
-                };
-            } else if (rot == 2) {
-                return new int[][]{
-                    {cx - 1, cy - 1}, {cx - 1, cy}, {cx, cy}, {cx + 1, cy}
-                };
-            } else {
-                return new int[][]{
-                    {cx + 1, cy - 1}, {cx, cy - 1}, {cx, cy}, {cx, cy + 1}
-                };
-            }
-        } else { // L
-            if (rot == 0) {
-                return new int[][]{
-                    {cx - 1, cy}, {cx, cy}, {cx + 1, cy}, {cx - 1, cy + 1}
-                };
-            } else if (rot == 1) {
-                return new int[][]{
-                    {cx, cy - 1}, {cx, cy}, {cx, cy + 1}, {cx - 1, cy - 1}
-                };
-            } else if (rot == 2) {
-                return new int[][]{
-                    {cx - 1, cy}, {cx, cy}, {cx + 1, cy}, {cx + 1, cy - 1}
-                };
-            } else {
-                return new int[][]{
-                    {cx, cy - 1}, {cx, cy}, {cx, cy + 1}, {cx + 1, cy + 1}
-                };
-            }
+            if (rot == 0) return new int[][]{{cx - 1, cy}, {cx, cy}, {cx + 1, cy}, {cx + 1, cy + 1}};
+            else if (rot == 1) return new int[][]{{cx, cy - 1}, {cx, cy}, {cx, cy + 1}, {cx - 1, cy + 1}};
+            else if (rot == 2) return new int[][]{{cx - 1, cy - 1}, {cx - 1, cy}, {cx, cy}, {cx + 1, cy}};
+            else return new int[][]{{cx + 1, cy - 1}, {cx, cy - 1}, {cx, cy}, {cx, cy + 1}};
+        } else {
+            if (rot == 0) return new int[][]{{cx - 1, cy}, {cx, cy}, {cx + 1, cy}, {cx - 1, cy + 1}};
+            else if (rot == 1) return new int[][]{{cx, cy - 1}, {cx, cy}, {cx, cy + 1}, {cx - 1, cy - 1}};
+            else if (rot == 2) return new int[][]{{cx - 1, cy}, {cx, cy}, {cx + 1, cy}, {cx + 1, cy - 1}};
+            else return new int[][]{{cx, cy - 1}, {cx, cy}, {cx, cy + 1}, {cx + 1, cy + 1}};
         }
     }
 
     private boolean collides(int cx, int cy, PieceType type, int rot) {
         int[][] cells = cellsFor(type, cx, cy, rot);
         for (int[] c : cells) {
-            int x = c[0];
-            int y = c[1];
+            int x = c[0], y = c[1];
             if (x < 0 || x >= GRID_WIDTH || y < 0 || y >= GRID_HEIGHT) return true;
             if (grid[x][y] != 0) return true;
         }
@@ -231,8 +199,7 @@ public class Level2Screen implements Screen {
     private void lockPiece() {
         int[][] cells = cellsFor(current.type, current.x, current.y, current.rot);
         for (int[] c : cells) {
-            int x = c[0];
-            int y = c[1];
+            int x = c[0], y = c[1];
             if (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT) {
                 grid[x][y] = 1;
             }
@@ -252,10 +219,7 @@ public class Level2Screen implements Screen {
         for (int y = 0; y < GRID_HEIGHT; y++) {
             boolean full = true;
             for (int x = 0; x < GRID_WIDTH; x++) {
-                if (grid[x][y] == 0) {
-                    full = false;
-                    break;
-                }
+                if (grid[x][y] == 0) { full = false; break; }
             }
             if (full) {
                 linesCleared++;
@@ -312,11 +276,8 @@ public class Level2Screen implements Screen {
                     onGround = false;
                 }
             } else {
-                if (diff.y > 0) {
-                    fastDrop = true;
-                }
+                if (diff.y > 0) fastDrop = true;
             }
-
 
             touchActive = false;
             moveTimer = 0f;
@@ -353,11 +314,9 @@ public class Level2Screen implements Screen {
                     }
                 }
             }
-
             fallTimer = 0f;
         }
     }
-
 
     @Override
     public void render(float delta) {
@@ -369,24 +328,17 @@ public class Level2Screen implements Screen {
 
         if (state == State.INSTRUCTIONS) {
             game.getBatch().begin();
-            String text =
-                "Строй стены детинца из блоков.\n" +
-                    "Фигуры I, O, T, S, Z, J, L падают вниз.\n\n" +
-                    "Свайп влево/вправо — движение,\n" +
-                    "свайп вниз — ускорить падение,\n" +
-                    "тап — поворот.\n\n" +
-                    "Справа показана следующая фигура.\n" +
-                    "Собери " + targetLines + " полных рядов.\n\n" +
-                    "Нажми, чтобы начать.";
-            layout.setText(font, text,
-                new Color(0.3f, 0.18f, 0.08f, 1f),
-                w - 80, Align.center, true);
-            font.draw(game.getBatch(), layout,
-                40, h * 0.65f);
+            String text = "Строй стены детинца из блоков.\nФигуры I, O, T, S, Z, J, L падают вниз.\n\n" +
+                "Свайп влево/вправо — движение,\nсвайп вниз — ускорить падение,\nтап — поворот.\n\n" +
+                "Справа показана следующая фигура.\nСобери " + targetLines + " полных рядов.\n\nНажми, чтобы начать.";
+            layout.setText(font, text, new Color(0.3f, 0.18f, 0.08f, 1f), w - 80, Align.center, true);
+            font.draw(game.getBatch(), layout, 40, h * 0.65f);
             game.getBatch().end();
 
             if (Gdx.input.justTouched()) {
                 state = State.RUNNING;
+                next = randomPiece();
+                spawnNewPieceFromNext();
             }
             return;
         }
@@ -396,27 +348,16 @@ public class Level2Screen implements Screen {
         game.getBatch().begin();
 
         game.getBatch().setColor(0.35f, 0.22f, 0.10f, 1f);
-        game.getBatch().draw(game.whitePixelTexture,
-            offsetX - 4, offsetY - 4,
-            GRID_WIDTH * CELL_SIZE + 8, 4);
-        game.getBatch().draw(game.whitePixelTexture,
-            offsetX - 4, offsetY + GRID_HEIGHT * CELL_SIZE,
-            GRID_WIDTH * CELL_SIZE + 8, 4);
-        game.getBatch().draw(game.whitePixelTexture,
-            offsetX - 4, offsetY - 4,
-            4, GRID_HEIGHT * CELL_SIZE + 8);
-        game.getBatch().draw(game.whitePixelTexture,
-            offsetX + GRID_WIDTH * CELL_SIZE, offsetY - 4,
-            4, GRID_HEIGHT * CELL_SIZE + 8);
+        game.getBatch().draw(game.whitePixelTexture, offsetX - 4, offsetY - 4, GRID_WIDTH * CELL_SIZE + 8, 4);
+        game.getBatch().draw(game.whitePixelTexture, offsetX - 4, offsetY + GRID_HEIGHT * CELL_SIZE, GRID_WIDTH * CELL_SIZE + 8, 4);
+        game.getBatch().draw(game.whitePixelTexture, offsetX - 4, offsetY - 4, 4, GRID_HEIGHT * CELL_SIZE + 8);
+        game.getBatch().draw(game.whitePixelTexture, offsetX + GRID_WIDTH * CELL_SIZE, offsetY - 4, 4, GRID_HEIGHT * CELL_SIZE + 8);
         game.getBatch().setColor(Color.WHITE);
 
         for (int x = 0; x < GRID_WIDTH; x++) {
             for (int y = 0; y < GRID_HEIGHT; y++) {
                 if (grid[x][y] != 0) {
-                    game.getBatch().draw(blockTex,
-                        offsetX + x * CELL_SIZE,
-                        offsetY + y * CELL_SIZE,
-                        CELL_SIZE, CELL_SIZE);
+                    game.getBatch().draw(blockTex, offsetX + x * CELL_SIZE, offsetY + y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                 }
             }
         }
@@ -426,78 +367,87 @@ public class Level2Screen implements Screen {
             for (int[] c : cells) {
                 int x = c[0];
                 int y = c[1];
-                if (x < 0 || x >= GRID_WIDTH || y < 0 || y >= GRID_HEIGHT) continue;
-                game.getBatch().draw(blockTex,
-                    offsetX + x * CELL_SIZE,
-                    offsetY + y * CELL_SIZE,
-                    CELL_SIZE, CELL_SIZE);
+                if (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT) {
+                    game.getBatch().draw(blockTex, offsetX + x * CELL_SIZE, offsetY + y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                }
             }
         }
 
         if (next != null) {
             int previewX = offsetX + GRID_WIDTH * CELL_SIZE + 40;
             int previewY = offsetY + GRID_HEIGHT * CELL_SIZE - 3 * CELL_SIZE;
-
             font.draw(game.getBatch(), "Далее:", previewX, previewY + 3 * CELL_SIZE + 20);
-
 
             int[][] ncells = cellsFor(next.type, 0, 0, 0);
             for (int[] c : ncells) {
-                int dx = c[0];
-                int dy = c[1];
-                float px = previewX + (dx + 1.5f) * (CELL_SIZE / 2f);
-                float py = previewY + (dy + 1.5f) * (CELL_SIZE / 2f);
-                game.getBatch().draw(blockTex, px, py,
-                    CELL_SIZE / 2f, CELL_SIZE / 2f);
+                float px = previewX + (c[0] + 1.5f) * (CELL_SIZE / 2f);
+                float py = previewY + (c[1] + 1.5f) * (CELL_SIZE / 2f);
+                game.getBatch().draw(blockTex, px, py, CELL_SIZE / 2f, CELL_SIZE / 2f);
             }
         }
 
         String progress = "Рядов: " + linesCleared + " / " + targetLines;
-        font.draw(game.getBatch(), progress,
-            offsetX, offsetY + GRID_HEIGHT * CELL_SIZE + 40);
+        font.draw(game.getBatch(), progress, offsetX, offsetY + GRID_HEIGHT * CELL_SIZE + 40);
 
         if (state == State.FINISHED) {
             String result = win ? "Крепость укреплена!" : "Попробуй еще раз.";
-
             float panelW = w - 80;
             float panelH = 180;
             float panelX = 40;
             float panelY = h / 2f - panelH / 2f;
 
             game.getBatch().setColor(1f, 0.98f, 0.9f, 0.95f);
-            game.getBatch().draw(game.whitePixelTexture,
-                panelX, panelY, panelW, panelH);
+            game.getBatch().draw(game.whitePixelTexture, panelX, panelY, panelW, panelH);
 
             game.getBatch().setColor(0.4f, 0.25f, 0.1f, 1f);
-            game.getBatch().draw(game.whitePixelTexture,
-                panelX, panelY, panelW, 4);
-            game.getBatch().draw(game.whitePixelTexture,
-                panelX, panelY + panelH - 4, panelW, 4);
-            game.getBatch().draw(game.whitePixelTexture,
-                panelX, panelY, 4, panelH);
-            game.getBatch().draw(game.whitePixelTexture,
-                panelX + panelW - 4, panelY, 4, panelH);
+            game.getBatch().draw(game.whitePixelTexture, panelX, panelY, panelW, 4);
+            game.getBatch().draw(game.whitePixelTexture, panelX, panelY + panelH - 4, panelW, 4);
+            game.getBatch().draw(game.whitePixelTexture, panelX, panelY, 4, panelH);
+            game.getBatch().draw(game.whitePixelTexture, panelX + panelW - 4, panelY, 4, panelH);
 
             game.getBatch().setColor(Color.WHITE);
 
-            layout.setText(font, result,
-                new Color(0.2f, 0.12f, 0.05f, 1f),
-                panelW - 40, Align.center, true);
-            font.draw(game.getBatch(), layout,
-                panelX + 20, panelY + panelH / 2f + 20);
+            layout.setText(font, result, new Color(0.2f, 0.12f, 0.05f, 1f), panelW - 40, Align.center, true);
+            font.draw(game.getBatch(), layout, panelX + 20, panelY + panelH / 2f + 20);
         }
-
 
         game.getBatch().end();
 
         if (state == State.FINISHED && Gdx.input.justTouched()) {
             if (win) {
                 game.setLevelCompleted(1, true);
-                game.setScreen(new LevelMenuScreen(game));
+                if (fromMenu || previousScreen == null) {
+                    game.setScreen(new LevelMenuScreen(game));
+                } else {
+                    if (previousScreen instanceof Scene2Screen) {
+                        Scene2Screen scene = (Scene2Screen) previousScreen;
+                        scene.setDialogueIndex(18);
+                        scene.setShowPanel(true);
+                        game.setScreen(scene);
+                    } else {
+                        game.setScreen(previousScreen);
+                    }
+                }
             } else {
-                game.setScreen(new Level2Screen(game));
+                resetGame();
             }
         }
+    }
+
+
+
+    private void resetGame() {
+        linesCleared = 0;
+        win = false;
+        gameOver = false;
+        state = State.RUNNING;
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            for (int y = 0; y < GRID_HEIGHT; y++) {
+                grid[x][y] = 0;
+            }
+        }
+        next = randomPiece();
+        spawnNewPieceFromNext();
     }
 
     @Override public void show() {}
@@ -510,6 +460,7 @@ public class Level2Screen implements Screen {
     public void dispose() {
         if (blockTex != null) blockTex.dispose();
         if (font != null) font.dispose();
+        if (dialogueFont != null) dialogueFont.dispose();
+        if (shapeRenderer != null) shapeRenderer.dispose();
     }
 }
-

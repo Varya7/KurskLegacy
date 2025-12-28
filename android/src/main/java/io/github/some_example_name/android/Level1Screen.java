@@ -53,8 +53,15 @@ public class Level1Screen implements Screen {
 
     private BitmapFont levelFont;
 
+    private final boolean fromMenu;
+
     public Level1Screen(MainGame game) {
+        this(game, true);
+    }
+
+    public Level1Screen(MainGame game, boolean fromMenu) {
         this.game = game;
+        this.fromMenu = fromMenu;
 
         background = new Texture(Gdx.files.internal("level1_background.jpg"));
 
@@ -128,13 +135,15 @@ public class Level1Screen implements Screen {
 
     @Override
     public void render(float delta) {
+        game.getBatch().setColor(Color.WHITE);
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
 
         Gdx.gl.glClearColor(0.16f, 0.10f, 0.06f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // ---------- ИНСТРУКЦИЯ ----------
         if (state == State.INSTRUCTIONS) {
             game.getBatch().begin();
 
@@ -174,7 +183,6 @@ public class Level1Screen implements Screen {
             updateGame(delta);
         }
 
-        // ---------- ОТРИСОВКА ИГРЫ ----------
         game.getBatch().begin();
 
         if (background != null) {
@@ -226,17 +234,29 @@ public class Level1Screen implements Screen {
                 panelX + 20, panelY + panelH / 2f + 20);
         }
 
-
         game.getBatch().end();
 
-        if (state == State.FINISHED && Gdx.input.justTouched()) {
+       if (state == State.FINISHED && Gdx.input.justTouched()) {
             if (win) {
                 game.setLevelCompleted(0, true);
-                game.setScreen(new LevelMenuScreen(game));
+                if (fromMenu) {
+                    game.setScreen(new LevelMenuScreen(game));
+                } else {
+                    Scene1Screen scene1 = new Scene1Screen(game);
+                    int nextIndex = Scene1Screen.pendingDialogueIndex;
+                    Scene1Screen.pendingDialogueIndex = -1;
+                    scene1.setDialogueIndex(nextIndex);
+                    game.setScreen(scene1);
+                }
             } else {
                 state = State.INSTRUCTIONS;
+                elapsedTime = 0f;
+                lives = 3;
+                objects.clear();
             }
         }
+
+
     }
 
     private void updateGame(float delta) {
